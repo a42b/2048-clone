@@ -37,15 +37,30 @@ body {
 .tile {
   width: 80px;
   height: 80px;
-  background: #f9ecde;
   border-radius: 6px;
   display: flex;
   justify-content: center;
   align-items: center;
-
   font-size: 32px;
   font-weight: bold;
+  transition: 0.15s ease;
+  background: #f9ecde;
+  color: #776e65;
 }
+
+.tile-2 { background: #f1d3de; color: #776e65; }
+.tile-4 { background: #efabc7; color: #776e65; }
+.tile-8 { background: #854d6b; color: white; }
+.tile-16 { background: #d79a79; color: white; }
+.tile-32 { background: #d17b97; color: white; }
+.tile-64 { background: #f63ba2; color: white; }
+
+.tile-128 { background: #edcf72; color: white; font-size: 28px; }
+.tile-256 { background: hsl(46, 80%, 65%); color: white; font-size: 28px; }
+.tile-512 { background: #edc850; color: white; font-size: 28px; }
+
+.tile-1024 { background: #a12f2f; color: white; font-size: 24px; }
+.tile-2048 { background: #de694e; color: white; font-size: 24px; }
 
 .tile.placeholder {
   width: 80px;

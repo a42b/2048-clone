@@ -131,7 +131,10 @@ function App() {
         {board.map((row, rowIndex) => (
           <div className="board-row" key={rowIndex}>
             {row.map((value, colIndex) => (
-              <div className="tile" key={colIndex}>
+              <div
+                className={`tile ${value !== 0 ? "tile-" + value : ""}`}
+                key={colIndex}
+              >
                 {value !== 0 ? value : ""}
               </div>
             ))}
