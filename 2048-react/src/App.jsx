@@ -5,13 +5,16 @@ function App() {
   const [board, setBoard] = useState(createEmptyBoard());
 
   useEffect(() => {
+    window.focus();
+
     addRandomTile();
     addRandomTile();
 
     const handleKey = (e) => {
-      if (e.key === "ArrowLeft") {
-        moveLeft();
-      }
+      if (e.key === "ArrowLeft") moveLeft();
+      if (e.key === "ArrowRight") moveRight();
+      if (e.key === "ArrowUp") moveUp();
+      if (e.key === "ArrowDown") moveDown();
     };
 
     window.addEventListener("keydown", handleKey);
@@ -28,7 +31,7 @@ function App() {
     setBoard(prev => {
       const newBoard = prev.map(row => [...row]);
       const emptyCells = [];
-      
+
       for (let r = 0; r < 4; r++) {
         for (let c = 0; c < 4; c++) {
           if (newBoard[r][c] === 0) emptyCells.push([r, c]);
@@ -55,15 +58,62 @@ function App() {
     }
 
     nums = nums.filter(n => n !== 0);
-
     while (nums.length < 4) nums.push(0);
 
     return nums;
   }
 
+  function slideRowRight(row) {
+    return slideRowLeft([...row].reverse()).reverse();
+  }
+
+  function transpose(board) {
+    return board[0].map((_, i) => board.map(row => row[i]));
+  }
+
   function moveLeft() {
     setBoard(prev => {
       const newBoard = prev.map(row => slideRowLeft(row));
+
+      if (JSON.stringify(newBoard) !== JSON.stringify(prev)) {
+        setTimeout(() => addRandomTile(), 50);
+      }
+
+      return newBoard;
+    });
+  }
+
+  function moveRight() {
+    setBoard(prev => {
+      const newBoard = prev.map(row => slideRowRight(row));
+
+      if (JSON.stringify(newBoard) !== JSON.stringify(prev)) {
+        setTimeout(() => addRandomTile(), 50);
+      }
+
+      return newBoard;
+    });
+  }
+
+  function moveUp() {
+    setBoard(prev => {
+      const transposed = transpose(prev);
+      const moved = transposed.map(row => slideRowLeft(row));
+      const newBoard = transpose(moved);
+
+      if (JSON.stringify(newBoard) !== JSON.stringify(prev)) {
+        setTimeout(() => addRandomTile(), 50);
+      }
+
+      return newBoard;
+    });
+  }
+
+  function moveDown() {
+    setBoard(prev => {
+      const transposed = transpose(prev);
+      const moved = transposed.map(row => slideRowRight(row));
+      const newBoard = transpose(moved);
 
       if (JSON.stringify(newBoard) !== JSON.stringify(prev)) {
         setTimeout(() => addRandomTile(), 50);
