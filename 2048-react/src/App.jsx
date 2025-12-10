@@ -7,6 +7,15 @@ function App() {
   useEffect(() => {
     addRandomTile();
     addRandomTile();
+
+    const handleKey = (e) => {
+      if (e.key === "ArrowLeft") {
+        moveLeft();
+      }
+    };
+
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
   }, []);
 
   function createEmptyBoard() {
@@ -30,6 +39,35 @@ function App() {
 
       const [r, c] = emptyCells[Math.floor(Math.random() * emptyCells.length)];
       newBoard[r][c] = Math.random() < 0.9 ? 2 : 4;
+
+      return newBoard;
+    });
+  }
+
+  function slideRowLeft(row) {
+    let nums = row.filter(n => n !== 0);
+
+    for (let i = 0; i < nums.length - 1; i++) {
+      if (nums[i] === nums[i + 1]) {
+        nums[i] *= 2;
+        nums[i + 1] = 0;
+      }
+    }
+
+    nums = nums.filter(n => n !== 0);
+
+    while (nums.length < 4) nums.push(0);
+
+    return nums;
+  }
+
+  function moveLeft() {
+    setBoard(prev => {
+      const newBoard = prev.map(row => slideRowLeft(row));
+
+      if (JSON.stringify(newBoard) !== JSON.stringify(prev)) {
+        setTimeout(() => addRandomTile(), 50);
+      }
 
       return newBoard;
     });
