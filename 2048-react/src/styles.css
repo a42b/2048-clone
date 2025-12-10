@@ -110,3 +110,51 @@ body {
 .restart-btn:hover {
   background: #9d8b75;
 }
+
+/* Best score box style */
+.best {
+  background: #a89785;
+}
+
+/* Popup overlays (Win + Game Over) */
+.popup-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 420px;
+  height: 420px;
+  background: rgba(255, 255, 255, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+}
+
+.popup-box {
+  background: white;
+  padding: 25px 35px;
+  border-radius: 10px;
+  text-align: center;
+  color: #776e65;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+.popup-box h2 {
+  margin-bottom: 10px;
+  font-size: 28px;
+}
+
+.popup-box button {
+  margin-top: 15px;
+  background: #8f7a66;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+}
+
+.popup-box button:hover {
+  background: #9d8b75;
+}

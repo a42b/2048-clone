@@ -4,6 +4,11 @@ import "./styles.css";
 function App() {
   const [board, setBoard] = useState(createEmptyBoard());
   const [score, setScore] = useState(0);
+  const [bestScore, setBestScore] = useState(
+    Number(localStorage.getItem("bestScore")) || 0
+  );
+  const [gameOver, setGameOver] = useState(false);
+  const [win, setWin] = useState(false);
 
   useEffect(() => {
     window.focus();
@@ -12,6 +17,8 @@ function App() {
     addRandomTile();
 
     const handleKey = (e) => {
+      if (gameOver || win) return;
+
       if (e.key === "ArrowLeft") moveLeft();
       if (e.key === "ArrowRight") moveRight();
       if (e.key === "ArrowUp") moveUp();
@@ -20,7 +27,14 @@ function App() {
 
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, []);
+  }, [gameOver, win]);
+
+  useEffect(() => {
+    if (score > bestScore) {
+      setBestScore(score);
+      localStorage.setItem("bestScore", score);
+    }
+  }, [score]);
 
   function createEmptyBoard() {
     return Array(4)
@@ -30,108 +44,142 @@ function App() {
 
   function restartGame() {
     setScore(0);
-    const empty = createEmptyBoard();
+    setGameOver(false);
+    setWin(false);
 
-    empty[Math.floor(Math.random() * 4)][Math.floor(Math.random() * 4)] = 2;
-    empty[Math.floor(Math.random() * 4)][Math.floor(Math.random() * 4)] = 2;
+    const fresh = createEmptyBoard();
+    fresh[Math.floor(Math.random() * 4)][Math.floor(Math.random() * 4)] = 2;
+    fresh[Math.floor(Math.random() * 4)][Math.floor(Math.random() * 4)] = 2;
 
-    setBoard(empty);
+    setBoard(fresh);
   }
-
+  
   function addRandomTile() {
-    setBoard(prev => {
-      const newBoard = prev.map(row => [...row]);
-      const emptyCells = [];
+    setBoard((prev) => {
+      const newBoard = prev.map((row) => [...row]);
+      const empty = [];
 
       for (let r = 0; r < 4; r++) {
         for (let c = 0; c < 4; c++) {
-          if (newBoard[r][c] === 0) emptyCells.push([r, c]);
+          if (newBoard[r][c] === 0) empty.push([r, c]);
         }
       }
 
-      if (emptyCells.length === 0) return prev;
+      if (empty.length === 0) {
+        if (!canMove(prev)) setGameOver(true);
+        return prev;
+      }
 
-      const [r, c] = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+      const [r, c] = empty[Math.floor(Math.random() * empty.length)];
       newBoard[r][c] = Math.random() < 0.9 ? 2 : 4;
+
+      // WIN CHECK
+      if (!win) {
+        for (let row of newBoard) {
+          if (row.includes(2048)) {
+            setWin(true);
+            break;
+          }
+        }
+      }
 
       return newBoard;
     });
   }
 
   function slideRowLeft(row) {
-    let nums = row.filter(n => n !== 0);
+    let arr = row.filter((n) => n !== 0);
 
-    for (let i = 0; i < nums.length - 1; i++) {
-      if (nums[i] === nums[i + 1]) {
-        nums[i] *= 2;
-        setScore(s => s + nums[i]); 
-        nums[i + 1] = 0;
+    for (let i = 0; i < arr.length - 1; i++) {
+      if (arr[i] === arr[i + 1]) {
+        arr[i] *= 2;
+        setScore((s) => s + arr[i]);
+        arr[i + 1] = 0;
       }
     }
 
-    nums = nums.filter(n => n !== 0);
-    while (nums.length < 4) nums.push(0);
-
-    return nums;
+    arr = arr.filter((n) => n !== 0);
+    while (arr.length < 4) arr.push(0);
+    return arr;
   }
 
   function slideRowRight(row) {
     return slideRowLeft([...row].reverse()).reverse();
   }
 
-  function transpose(board) {
-    return board[0].map((_, i) => board.map(row => row[i]));
+  function transpose(mat) {
+    return mat[0].map((_, i) => mat.map((row) => row[i]));
+  }
+
+  function canMove(mat) {
+    for (let r = 0; r < 4; r++) {
+      for (let c = 0; c < 4; c++) {
+        if (mat[r][c] === 0) return true;
+      }
+    }
+
+    for (let r = 0; r < 4; r++) {
+      for (let c = 0; c < 3; c++) {
+        if (mat[r][c] === mat[r][c + 1]) return true;
+      }
+    }
+
+    for (let c = 0; c < 4; c++) {
+      for (let r = 0; r < 3; r++) {
+        if (mat[r][c] === mat[r + 1][c]) return true;
+      }
+    }
+
+    return false;
   }
 
   function moveLeft() {
-    setBoard(prev => {
-      const newBoard = prev.map(row => slideRowLeft(row));
-
-      if (JSON.stringify(newBoard) !== JSON.stringify(prev)) {
-        setTimeout(() => addRandomTile(), 50);
+    if (gameOver || win) return;
+    setBoard((prev) => {
+      const next = prev.map((row) => slideRowLeft(row));
+      if (JSON.stringify(next) !== JSON.stringify(prev)) {
+        setTimeout(() => addRandomTile(), 40);
       }
-
-      return newBoard;
+      return next;
     });
   }
 
   function moveRight() {
-    setBoard(prev => {
-      const newBoard = prev.map(row => slideRowRight(row));
-
-      if (JSON.stringify(newBoard) !== JSON.stringify(prev)) {
-        setTimeout(() => addRandomTile(), 50);
+    if (gameOver || win) return;
+    setBoard((prev) => {
+      const next = prev.map((row) => slideRowRight(row));
+      if (JSON.stringify(next) !== JSON.stringify(prev)) {
+        setTimeout(() => addRandomTile(), 40);
       }
-
-      return newBoard;
+      return next;
     });
   }
 
   function moveUp() {
-    setBoard(prev => {
-      const transposed = transpose(prev);
-      const moved = transposed.map(row => slideRowLeft(row));
-      const newBoard = transpose(moved);
+    if (gameOver || win) return;
+    setBoard((prev) => {
+      const t = transpose(prev);
+      const moved = t.map((row) => slideRowLeft(row));
+      const next = transpose(moved);
 
-      if (JSON.stringify(newBoard) !== JSON.stringify(prev)) {
-        setTimeout(() => addRandomTile(), 50);
+      if (JSON.stringify(next) !== JSON.stringify(prev)) {
+        setTimeout(() => addRandomTile(), 40);
       }
-
-      return newBoard;
+      return next;
     });
   }
 
   function moveDown() {
-    setBoard(prev => {
-      const transposed = transpose(prev);
-      const moved = transposed.map(row => slideRowRight(row));
-      const newBoard = transpose(moved);
+    if (gameOver || win) return;
+    setBoard((prev) => {
+      const t = transpose(prev);
+      const moved = t.map((row) => slideRowRight(row));
+      const next = transpose(moved);
 
-      if (JSON.stringify(newBoard) !== JSON.stringify(prev)) {
-        setTimeout(() => addRandomTile(), 50);
+      if (JSON.stringify(next) !== JSON.stringify(prev)) {
+        setTimeout(() => addRandomTile(), 40);
       }
-
-      return newBoard;
+      return next;
     });
   }
 
@@ -146,25 +194,56 @@ function App() {
           <div className="score-value">{score}</div>
         </div>
 
+        <div className="score-box best">
+          <div className="score-title">BEST</div>
+          <div className="score-value">{bestScore}</div>
+        </div>
+
         <button className="restart-btn" onClick={restartGame}>
           Restart
         </button>
       </div>
 
-      {/* GAME BOARD */}
-      <div className="board">
-        {board.map((row, rowIndex) => (
-          <div className="board-row" key={rowIndex}>
-            {row.map((value, colIndex) => (
-              <div
-                className={`tile ${value !== 0 ? "tile-" + value : ""}`}
-                key={colIndex}
-              >
-                {value !== 0 ? value : ""}
-              </div>
-            ))}
+      {/* BOARD & OVERLAYS */}
+      <div
+        style={{ position: "relative", width: "fit-content", margin: "0 auto" }}
+      >
+        <div className="board">
+          {board.map((row, ri) => (
+            <div className="board-row" key={ri}>
+              {row.map((value, ci) => (
+                <div
+                  className={`tile ${value !== 0 ? "tile-" + value : ""}`}
+                  key={ci}
+                >
+                  {value !== 0 ? value : ""}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+
+        {/* WIN MESSAGE */}
+        {win && (
+          <div className="popup-overlay">
+            <div className="popup-box">
+              <h2>You Win!</h2>
+              <p>You created the 2048 tile!</p>
+              <button onClick={() => setWin(false)}>Continue</button>
+            </div>
           </div>
-        ))}
+        )}
+
+        {/* GAME OVER */}
+        {gameOver && (
+          <div className="popup-overlay">
+            <div className="popup-box">
+              <h2>Game Over</h2>
+              <p>No more moves left.</p>
+              <button onClick={restartGame}>Restart</button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
