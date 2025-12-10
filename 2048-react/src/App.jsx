@@ -7,8 +7,14 @@ function App() {
   const [bestScore, setBestScore] = useState(
     Number(localStorage.getItem("bestScore")) || 0
   );
+
   const [gameOver, setGameOver] = useState(false);
   const [win, setWin] = useState(false);
+
+  const [hasWonBefore, setHasWonBefore] = useState(false);
+
+  const [isMoving, setIsMoving] = useState(false);
+  const [moveDirection, setMoveDirection] = useState("left");
 
   useEffect(() => {
     window.focus();
@@ -46,6 +52,7 @@ function App() {
     setScore(0);
     setGameOver(false);
     setWin(false);
+    setHasWonBefore(false); 
 
     const fresh = createEmptyBoard();
     fresh[Math.floor(Math.random() * 4)][Math.floor(Math.random() * 4)] = 2;
@@ -53,7 +60,7 @@ function App() {
 
     setBoard(fresh);
   }
-  
+
   function addRandomTile() {
     setBoard((prev) => {
       const newBoard = prev.map((row) => [...row]);
@@ -72,12 +79,11 @@ function App() {
 
       const [r, c] = empty[Math.floor(Math.random() * empty.length)];
       newBoard[r][c] = Math.random() < 0.9 ? 2 : 4;
-
-      // WIN CHECK
-      if (!win) {
+      if (!hasWonBefore) {
         for (let row of newBoard) {
           if (row.includes(2048)) {
             setWin(true);
+            setHasWonBefore(true);
             break;
           }
         }
@@ -133,8 +139,17 @@ function App() {
     return false;
   }
 
+  function triggerMoveAnimation(direction) {
+    setMoveDirection(direction);
+    setIsMoving(true);
+    setTimeout(() => setIsMoving(false), 170);
+  }
+
   function moveLeft() {
     if (gameOver || win) return;
+
+    triggerMoveAnimation("left");
+
     setBoard((prev) => {
       const next = prev.map((row) => slideRowLeft(row));
       if (JSON.stringify(next) !== JSON.stringify(prev)) {
@@ -146,6 +161,9 @@ function App() {
 
   function moveRight() {
     if (gameOver || win) return;
+
+    triggerMoveAnimation("right");
+
     setBoard((prev) => {
       const next = prev.map((row) => slideRowRight(row));
       if (JSON.stringify(next) !== JSON.stringify(prev)) {
@@ -157,6 +175,9 @@ function App() {
 
   function moveUp() {
     if (gameOver || win) return;
+
+    triggerMoveAnimation("up");
+
     setBoard((prev) => {
       const t = transpose(prev);
       const moved = t.map((row) => slideRowLeft(row));
@@ -171,6 +192,9 @@ function App() {
 
   function moveDown() {
     if (gameOver || win) return;
+
+    triggerMoveAnimation("down");
+
     setBoard((prev) => {
       const t = transpose(prev);
       const moved = t.map((row) => slideRowRight(row));
@@ -187,7 +211,6 @@ function App() {
     <div className="app">
       <h1 className="title">2048 Clone (React)</h1>
 
-      {/* SCORE + RESTART BUTTON */}
       <div className="top-bar">
         <div className="score-box">
           <div className="score-title">SCORE</div>
@@ -204,16 +227,15 @@ function App() {
         </button>
       </div>
 
-      {/* BOARD & OVERLAYS */}
-      <div
-        style={{ position: "relative", width: "fit-content", margin: "0 auto" }}
-      >
+      <div style={{ position: "relative", width: "fit-content", margin: "0 auto" }}>
         <div className="board">
           {board.map((row, ri) => (
             <div className="board-row" key={ri}>
               {row.map((value, ci) => (
                 <div
-                  className={`tile ${value !== 0 ? "tile-" + value : ""}`}
+                  className={`tile ${value !== 0 ? "tile-" + value : ""} ${
+                    isMoving ? `moving moving-${moveDirection}` : ""
+                  }`}
                   key={ci}
                 >
                   {value !== 0 ? value : ""}
@@ -223,18 +245,16 @@ function App() {
           ))}
         </div>
 
-        {/* WIN MESSAGE */}
         {win && (
           <div className="popup-overlay">
             <div className="popup-box">
               <h2>You Win!</h2>
-              <p>You created the 2048 tile!</p>
+              <p>You reached 2048!</p>
               <button onClick={() => setWin(false)}>Continue</button>
             </div>
           </div>
         )}
 
-        {/* GAME OVER */}
         {gameOver && (
           <div className="popup-overlay">
             <div className="popup-box">
