@@ -1,6 +1,6 @@
 body { font-family: Inter, Arial, sans-serif; background:#faf8ef; margin:20px; color:#776e65; }
 .app { width:420px; margin:0 auto; }
 .title { text-align:center; }
-.board { background:#bbada0; padding:12px; border-radius:8px; }
+.board { background:#bbada0; padding:12px; border-radius:8px; width: fit-content; height: fit-content; }
 .board-row { display:flex; gap:12px; margin-bottom:12px; }
 .tile.placeholder { width:80px; height:80px; background:#cdc1b4; border-radius:6px; }
