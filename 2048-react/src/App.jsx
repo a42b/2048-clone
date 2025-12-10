@@ -3,6 +3,7 @@ import "./styles.css";
 
 function App() {
   const [board, setBoard] = useState(createEmptyBoard());
+  const [score, setScore] = useState(0);
 
   useEffect(() => {
     window.focus();
@@ -25,6 +26,16 @@ function App() {
     return Array(4)
       .fill(null)
       .map(() => Array(4).fill(0));
+  }
+
+  function restartGame() {
+    setScore(0);
+    const empty = createEmptyBoard();
+
+    empty[Math.floor(Math.random() * 4)][Math.floor(Math.random() * 4)] = 2;
+    empty[Math.floor(Math.random() * 4)][Math.floor(Math.random() * 4)] = 2;
+
+    setBoard(empty);
   }
 
   function addRandomTile() {
@@ -53,6 +64,7 @@ function App() {
     for (let i = 0; i < nums.length - 1; i++) {
       if (nums[i] === nums[i + 1]) {
         nums[i] *= 2;
+        setScore(s => s + nums[i]); 
         nums[i + 1] = 0;
       }
     }
@@ -127,6 +139,19 @@ function App() {
     <div className="app">
       <h1 className="title">2048 Clone (React)</h1>
 
+      {/* SCORE + RESTART BUTTON */}
+      <div className="top-bar">
+        <div className="score-box">
+          <div className="score-title">SCORE</div>
+          <div className="score-value">{score}</div>
+        </div>
+
+        <button className="restart-btn" onClick={restartGame}>
+          Restart
+        </button>
+      </div>
+
+      {/* GAME BOARD */}
       <div className="board">
         {board.map((row, rowIndex) => (
           <div className="board-row" key={rowIndex}>
