@@ -1,16 +1,63 @@
-# React + Vite
+# 2048 Game Project
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A **2048 game clone** built with **React**.  
+The project demonstrates core concepts of game logic, state management, and UI design.
 
-Currently, two official plugins are available:
+![s](image.png)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Full 2048 mechanics  
+- **Win detection** (2048 tile popup — shown only once)  
+- **Score system** and **LocalStorage best score**  
+- Centered and responsive board layout  
+- Restart button to begin a new game anytime  
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Technologies Used
+
+- **React** (Hooks: useState, useEffect)  
+- **JavaScript (ES6+)**  
+- **CSS** for board, tiles, and animations  
+- **Vite** as the project bundler  
+- LocalStorage for best score persistence  
+
+---
+
+##  Installation & Running
+
+Clone this repository:
+
+```bash
+git clone <your-repo-url>
+cd 2048-react
+```
+
+Install dependencies:
+```bash
+npm install
+```
+
+Start the development server:
+```bash
+npm run dev
+```
+
+Then open: http://localhost:5173/
+
+# Gameplay
+
+    Use the arrow keys to move tiles.
+
+    Identical tiles merge and form the next tile value.
+
+    After each move, a new tile (2 or 4) spawns.
+
+    Create the 2048 tile to win.
+
+    You may continue playing after winning.
+
+    The game ends when no valid moves remain.
